@@ -1,6 +1,8 @@
 import csv
 from sys import argv, exit
 from os import path
+from helpers import *
+
 
 def input_file_is_valid(filename):
 
@@ -34,34 +36,22 @@ def read_csv_file(filename):
     return input_data
 
 
-def write_output_file(data):
-    symbol = data["name"].replace("-", "")
+def write_output_file(output_data):
+    # TODO change file name
+    file_name = output_data["#Name"].replace('"', "").replace("-", "").lower()
 
-    output_file_data = {
-        "#ID": data["id"],
-        "#Name": '"' + data["name"] + '"',
-        "#bitManAuto": "int_" + symbol + "[0]",
-        "#bitLigaMan": "int_" + symbol + "[1]",
-        "#bitStsLigadoMan": "int_" + symbol + "[2]",
-        "#bitStsLigadoAuto": "int_" + symbol + "[3]",
-        "#bitStsFalha": "int_" + symbol + "[4]",
-        "#bitResetHorimetro": "int_" + symbol + "[5]",
-        "#bitLocalRemoto": "int_" + symbol + "[6]",
-        "#intHorimetro": "int_hor_" + symbol
-    }
-
-    with open(f"{symbol}.mne", "w") as output_file:
-        for k, v in output_file_data.items():
-            output_file.write(str(k) + ':'+ str(v) + '\n')
+    with open(f"{file_name}.mne", "w") as output_file:
+        for key, value in output_data.items():
+            output_file.write(str(key) + ':'+ str(value) + '\n') 
     
 
-
 # Check for correct usage
-if len(argv) != 2:
-    print("Uso: python geratags.py entrada.csv")
+if len(argv) != 3:
+    print("Uso: python geratags.py entrada.csv #format")
     exit(1)
 
 input_file_name = argv[1]
+model_numer = int(argv[2])
 
 # Validate input file
 if not input_file_is_valid(input_file_name):
@@ -72,6 +62,7 @@ input_data = read_csv_file(input_file_name)
 
 # Write output files
 for data in input_data:
-    write_output_file(data)
+    output_data = generate(data, model_numer)
+    write_output_file(output_data)
 
 exit(0)
