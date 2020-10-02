@@ -66,8 +66,8 @@ def generate_output_data(input_data, template_data):
     output_data = []
 
     # Include first two lines common to every model
-    output_data.append("#ID:" + input_data["id"])
-    output_data.append('#Name:"' + input_data["name"] + '"')
+    output_data.append("#ID:" + input_data["id"] + "\n")
+    output_data.append('#Name:"' + input_data["name"] + '"\n')
 
     # Create a variable stripping the hifens of the name attribute
     symbol = input_data["name"].replace("-", '')
@@ -81,8 +81,8 @@ def generate_output_data(input_data, template_data):
 
 def write_output_file(output_data):
 
-    #TODO
-    pass
+    with open(f"teste.mne", "w") as output_file:
+        output_file.writelines(output_data)
 
 
 # Check for correct usage
