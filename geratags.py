@@ -84,10 +84,8 @@ def generate_output_data(input_data, template_data):
 
 def write_output_file(output_data):
 
-    file_name = output_data["file_name"]
-
     # Write file
-    with open(f"{file_name}.mne", "w") as output_file:
+    with open(output_data["file_name"] + ".mne", "w") as output_file:
         output_file.writelines(output_data["data"])
 
 
