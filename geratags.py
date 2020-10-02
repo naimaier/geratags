@@ -10,7 +10,7 @@ def input_file_is_valid(input_file_name):
         print(f"O arquivo '{input_file_name}' nao existe")
         return False
 
-    # Check if input file is of csv extension
+    # Check if input file has csv extension
     if not input_file_name.endswith('.csv'):
         print(f"'{input_file_name}' nao e um arquivo csv valido!")
         return False
@@ -20,8 +20,17 @@ def input_file_is_valid(input_file_name):
 
 def template_file_is_valid(template_file_name):
     
-    # TODO
-    return False
+    # Check if template file exists
+    if not path.exists(template_file_name):
+        print(f"O arquivo '{template_file_name}' nao existe")
+        return False
+
+    # Check if template file has txt extension
+    if not template_file_name.endswith('.txt'):
+        print(f"'{template_file_name}' nao e um arquivo txt valido!")
+        return False
+
+    return True
 
 
 def read_csv_file(input_file_name):
