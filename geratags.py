@@ -63,26 +63,32 @@ def read_template_file(template_file_name):
 
 def generate_output_data(input_data, template_data):
 
-    output_data = []
-
-    # Include first two lines common to every model
-    output_data.append("#ID:" + input_data["id"] + "\n")
-    output_data.append('#Name:"' + input_data["name"] + '"\n')
-
     # Create a variable stripping the hifens of the name attribute
     symbol = input_data["name"].replace("-", '')
 
+    output_data = {
+        "file_name": symbol.lower(),
+        "data": []
+    }
+
+    # Include first two lines common to every model
+    output_data["data"].append("#ID:" + input_data["id"] + "\n")
+    output_data["data"].append('#Name:"' + input_data["name"] + '"\n')
+
     # Generate the output data by replacing the wildcard with the symbol
     for data in template_data:
-        output_data.append(data.replace("$", symbol))
+        output_data["data"].append(data.replace("$", symbol))
 
     return output_data
 
 
 def write_output_file(output_data):
 
-    with open(f"teste.mne", "w") as output_file:
-        output_file.writelines(output_data)
+    file_name = output_data["file_name"]
+
+    # Write file
+    with open(f"{file_name}.mne", "w") as output_file:
+        output_file.writelines(output_data["data"])
 
 
 # Check for correct usage
