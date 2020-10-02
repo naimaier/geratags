@@ -52,8 +52,13 @@ def read_csv_file(input_file_name):
 
 def read_template_file(template_file_name):
 
-    #TODO
-    return None
+    template_data = []
+
+    # Read template file (txt extension)
+    with open(template_file_name) as template_file:
+        template_data = template_file.readlines()
+
+    return template_data
 
 
 def generate_output_data(input_data, template_data):
