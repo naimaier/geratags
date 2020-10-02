@@ -62,8 +62,21 @@ def read_template_file(template_file_name):
 
 
 def generate_output_data(input_data, template_data):
-    #TODO
-    return None
+
+    output_data = []
+
+    # Include first two lines common to every model
+    output_data.append("#ID:" + input_data["id"])
+    output_data.append('#Name:"' + input_data["name"] + '"')
+
+    # Create a variable stripping the hifens of the name attribute
+    symbol = input_data["name"].replace("-", '')
+
+    # Generate the output data by replacing the wildcard with the symbol
+    for data in template_data:
+        output_data.append(data.replace("$", symbol))
+
+    return output_data
 
 
 def write_output_file(output_data):
