@@ -1,10 +1,9 @@
 import csv
 from sys import argv, exit
 from os import path
-from helpers import *
 
 
-def input_file_is_valid(filename):
+def input_file_is_valid(input_file_name):
 
     # Check if input file exists
     if not path.exists(input_file_name):
@@ -19,11 +18,17 @@ def input_file_is_valid(filename):
     return True
 
 
-def read_csv_file(filename):
+def template_file_is_valid(template_file_name):
+    
+    # TODO
+    return False
+
+
+def read_csv_file(input_file_name):
     
     input_data = []
 
-    # Read csv file
+    # Read csv file (csv extension)
     with open(input_file_name, 'r') as csvfile:
         reader = csv.reader(csvfile, delimiter=',')
         for row in reader:
@@ -36,33 +41,48 @@ def read_csv_file(filename):
     return input_data
 
 
-def write_output_file(output_data):
-    # TODO change file name
-    file_name = output_data["#Name"].replace('"', "").replace("-", "").lower()
+def read_template_file(template_file_name):
 
-    with open(f"{file_name}.mne", "w") as output_file:
-        for key, value in output_data.items():
-            output_file.write(str(key) + ':'+ str(value) + '\n') 
-    
+    #TODO
+    return None
+
+
+def generate_output_data(input_data, template_data):
+    #TODO
+    return None
+
+
+def write_output_file(output_data):
+
+    #TODO
+    pass
+
 
 # Check for correct usage
 if len(argv) != 3:
-    print("Uso: python geratags.py entrada.csv #format")
+    print("Uso: python geratags.py entrada.csv modelo.txt")
     exit(1)
 
 input_file_name = argv[1]
-model_numer = int(argv[2])
+template_file_name = argv[2]
 
 # Validate input file
 if not input_file_is_valid(input_file_name):
     exit(1)
 
+# Validate template file
+if not template_file_is_valid(template_file_name):
+    exit(1)
+
 # Read the input file
 input_data = read_csv_file(input_file_name)
 
+# Read the template file
+template_data = read_template_file(template_file_name)
+
 # Write output files
 for data in input_data:
-    output_data = generate(data, model_numer)
+    output_data = generate_output_data(data, template_data)
     write_output_file(output_data)
 
 exit(0)
