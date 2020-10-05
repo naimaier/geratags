@@ -1,9 +1,23 @@
 # coding: utf-8
 import csv
 from os import path
-from tkinter import Tk, Label, Button
+from tkinter import Tk, Label, Button, messagebox
 from tkinter.filedialog import askopenfilename, askdirectory
 from functools import partial
+import json
+
+
+def load_settings():
+    settings = {}
+    with open("settings.json", "r") as settings_file:
+        settings = json.load(settings_file)
+
+    return settings
+
+
+def write_settings(settings):
+    with open("settings.json", "w") as settings_file:
+        json.dump(settings, settings_file)
 
 
 def input_file_is_valid(input_file_name):
@@ -91,6 +105,7 @@ def bt_input_click(settings, lb):
                                              title='Selecione o Arquivo de Entrada', 
                                              filetypes=[('Arquivos CSV', '*.csv')])
     lb["text"] = settings["input_file"]
+    write_settings(settings)
 
 
 def bt_template_click(settings, lb):
@@ -99,6 +114,7 @@ def bt_template_click(settings, lb):
                                              title='Selecione o Arquivo de Modelo', 
                                              filetypes=[('Arquivos TXT', '*.txt')])
     lb["text"] = settings["template_file"]
+    write_settings(settings)
 
 
 def bt_export_path_click(settings, lb):
@@ -106,6 +122,7 @@ def bt_export_path_click(settings, lb):
     settings["export_path"] = askdirectory(initialdir='/', 
                                            title='Selecione o Diretório de Destino')
     lb["text"] = settings["export_path"]
+    write_settings(settings)
 
 
 def bt_run_click(settings):
@@ -131,13 +148,18 @@ def bt_run_click(settings):
     for data in input_data:
         output_data = generate_output_data(data, template_data)
         write_output_file(output_data)
+    
+    messagebox.showinfo("Arquivos gerados", "Arquivos gerados")
 
 
-settings = {
-    'input_file': 'Escolher',
-    'template_file': 'Escolher',
-    'export_path': 'Escolher'
-}
+if path.exists("settings.json"):
+    settings = load_settings()
+else:
+    settings = {
+        'input_file': 'Escolher',
+        'template_file': 'Escolher',
+        'export_path': 'Escolher'
+    }
 
 # Generate main window
 root = Tk()

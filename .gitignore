@@ -132,3 +132,4 @@ dmypy.json
 *.mne
 *.csv
 *.txt
+settings.json
