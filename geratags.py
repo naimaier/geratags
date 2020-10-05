@@ -101,8 +101,11 @@ def bt_input_click(settings):
 
 
 def bt_template_click(settings):
-    # TODO
-    pass
+    # TODO change initial dir to 'C:\'
+    settings["template_file"] = askopenfilename(initialdir='/', 
+                                             title='Selecione o Arquivo de Modelo', 
+                                             filetypes=[('Arquivos TXT', '*.txt')])
+    # TODO reload labels
 
 
 def bt_export_path_click(settings):
