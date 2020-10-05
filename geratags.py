@@ -2,7 +2,7 @@ import csv
 from sys import argv, exit
 from os import path
 from tkinter import *
-from tkinter.filedialog import askopenfilename
+from tkinter.filedialog import askopenfilename, askdirectory
 from functools import partial
 
 
@@ -109,8 +109,10 @@ def bt_template_click(settings):
 
 
 def bt_export_path_click(settings):
-    # TODO
-    pass
+    # TODO change initial dir to 'C:\'
+    settings["export_path"] = askdirectory(initialdir='/', 
+                                           title='Selecione o Diretório de Destino')
+    # TODO reload labels
 
 
 def bt_run_click(settings):
