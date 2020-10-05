@@ -2,6 +2,7 @@ import csv
 from sys import argv, exit
 from os import path
 from tkinter import *
+from functools import partial
 
 
 def input_file_is_valid(input_file_name):
@@ -90,50 +91,60 @@ def write_output_file(output_data):
         output_file.writelines(output_data["data"])
 
 
-def bt_input_click():
+def bt_input_click(settings):
     # TODO
     pass
 
 
-def bt_template_click():
+def bt_template_click(settings):
     # TODO
     pass
 
 
-def bt_run_click():
+def bt_export_path_click(settings):
     # TODO
     pass
 
 
-def bt_export_path_click():
+def bt_run_click(settings):
     # TODO
     pass
 
+
+settings = {
+    'input_file': 'Escolher',
+    'template_file': 'Escolher',
+    'export_path': 'Escolher'
+}
 
 # Generate main window
 root = Tk()
 
 root.title("Gerador de Tags")
 
-bt_input = Button(root, text="Arquivo de Entrada", command=bt_input_click)
+bt_input = Button(root, text="Arquivo de Entrada")
+bt_input["command"] = partial(bt_input_click, settings)
 bt_input.grid(row=0, column=0)
 
-lb_input = Label(root, text="Escolher")
+lb_input = Label(root, text=settings["input_file"])
 lb_input.grid(row=0, column=1)
 
-bt_template = Button(root, text="Arquivo de Modelo", command=bt_template_click)
+bt_template = Button(root, text="Arquivo de Modelo")
+bt_template["command"] = partial(bt_template_click, settings)
 bt_template.grid(row=1, column=0)
 
-lb_template = Label(root, text="Escolher")
+lb_template = Label(root, text=settings["template_file"])
 lb_template.grid(row=1, column=1)
 
-bt_export_path = Button(root, text="Caminho de Destino", command=bt_export_path_click)
+bt_export_path = Button(root, text="Caminho de Destino")
+bt_export_path["command"] = partial(bt_export_path_click, settings)
 bt_export_path.grid(row=2, column=0)
 
-lb_export_path = Label(root, text="Escolher")
+lb_export_path = Label(root, text=settings["export_path"])
 lb_export_path.grid(row=2, column=1)
 
-bt_run = Button(root, text="Gerar Arquivos", command=bt_run_click)
+bt_run = Button(root, text="Gerar Arquivos")
+bt_run["command"] = partial(bt_run_click, settings)
 bt_run.grid(row=3, column=0, columnspan=2)
 
 root.mainloop()
