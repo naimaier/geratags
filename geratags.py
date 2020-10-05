@@ -2,6 +2,7 @@ import csv
 from sys import argv, exit
 from os import path
 from tkinter import *
+from tkinter.filedialog import askopenfilename
 from functools import partial
 
 
@@ -92,8 +93,11 @@ def write_output_file(output_data):
 
 
 def bt_input_click(settings):
-    # TODO
-    pass
+    # TODO change initial dir to 'C:\'
+    settings["input_file"] = askopenfilename(initialdir='/', 
+                                             title='Selecione o Arquivo de Entrada', 
+                                             filetypes=[('Arquivos CSV', '*.csv')])
+    # TODO reload labels
 
 
 def bt_template_click(settings):
