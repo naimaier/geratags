@@ -1,6 +1,7 @@
 import csv
 from sys import argv, exit
 from os import path
+from tkinter import *
 
 
 def input_file_is_valid(input_file_name):
@@ -89,6 +90,55 @@ def write_output_file(output_data):
         output_file.writelines(output_data["data"])
 
 
+def bt_input_click():
+    # TODO
+    pass
+
+
+def bt_template_click():
+    # TODO
+    pass
+
+
+def bt_run_click():
+    # TODO
+    pass
+
+
+def bt_export_path_click():
+    # TODO
+    pass
+
+
+# Generate main window
+root = Tk()
+
+root.title("Gerador de Tags")
+
+bt_input = Button(root, text="Arquivo de Entrada", command=bt_input_click)
+bt_input.grid(row=0, column=0)
+
+lb_input = Label(root, text="Escolher")
+lb_input.grid(row=0, column=1)
+
+bt_template = Button(root, text="Arquivo de Modelo", command=bt_template_click)
+bt_template.grid(row=1, column=0)
+
+lb_template = Label(root, text="Escolher")
+lb_template.grid(row=1, column=1)
+
+bt_export_path = Button(root, text="Caminho de Destino", command=bt_export_path_click)
+bt_export_path.grid(row=2, column=0)
+
+lb_export_path = Label(root, text="Escolher")
+lb_export_path.grid(row=2, column=1)
+
+bt_run = Button(root, text="Gerar Arquivos", command=bt_run_click)
+bt_run.grid(row=3, column=0, columnspan=2)
+
+root.mainloop()
+
+"""
 # Check for correct usage
 if len(argv) != 3:
     print("Uso: python geratags.py entrada.csv modelo.txt")
@@ -117,3 +167,4 @@ for data in input_data:
     write_output_file(output_data)
 
 exit(0)
+"""
