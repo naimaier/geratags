@@ -1,7 +1,7 @@
 # coding: utf-8
 import csv
 from os import path
-from tkinter import Tk, Label, Button, messagebox
+from tkinter import Tk, Frame, Label, Button, messagebox
 from tkinter.filedialog import askopenfilename, askdirectory
 from functools import partial
 import json
@@ -23,7 +23,7 @@ def write_settings(settings):
 def export_path_is_valid(export_path):
     # Check if template file exists
     if not path.exists(export_path):
-        messagebox.showwarning("O caminho '" + export_path + "' não existe")
+        messagebox.showwarning("O diretório '" + export_path + "' não existe")
         return False
 
     return True
@@ -32,7 +32,7 @@ def export_path_is_valid(export_path):
 def read_csv_file(input_file_name):
     input_data = []
 
-    # Read csv file (csv extension)
+    # Read csv file (csv extension) into a dict list
     try:
         with open(input_file_name, 'r') as csvfile:
             reader = csv.reader(csvfile, delimiter=',')
@@ -169,32 +169,70 @@ else:
 
 # Generate main window
 root = Tk()
-
 root.title("Gerador de Tags")
 
-lbl_input = Label(root, text=settings["input_file"])
-lbl_input.grid(row=0, column=1)
+# Centering the window on the screen
+# https://yagisanatode.com/2018/02/24/how-to-center-the-main-window-on-the-screen-in-tkinter-with-python-3/
 
-btn_input = Button(root, text="Arquivo de Entrada")
+# Define the window size
+windowWidth = 300
+windowHeight = 500
+ 
+# Gets both half the screen width/height and window width/height
+positionRight = int(root.winfo_screenwidth()/2 - windowWidth/2)
+positionDown = int(root.winfo_screenheight()/2 - windowHeight/2)
+ 
+# Positions the window in the center of the page.
+root.geometry("{}x{}+{}+{}".format(windowWidth, windowHeight, positionRight, positionDown))
+
+main_frame = Frame(root)
+main_frame.place(anchor="c", relx=0.5, rely=0.5)
+
+""" INPUT FRAME """
+input_frame = Frame(main_frame, padx=10, pady=10)
+input_frame.grid(row=0, column=0)
+
+lbl_input_title = Label(master=input_frame, font="Verdana 14 bold", text="Arquivo de Entrada (.csv)")
+lbl_input_title.pack()
+
+lbl_input = Label(master=input_frame, wraplength=250, text=settings["input_file"])
+lbl_input.pack()
+
+btn_input = Button(master=input_frame, text="Selecionar")
 btn_input["command"] = partial(ask_for_input_file, settings, lbl_input)
-btn_input.grid(row=0, column=0)
+btn_input.pack()
 
-lbl_template = Label(root, text=settings["template_file"])
-lbl_template.grid(row=1, column=1)
+""" TEMPLATE FRAME """
+template_frame = Frame(main_frame, padx=10, pady=10)
+template_frame.grid(row=1, column=0)
 
-btn_template = Button(root, text="Arquivo de Modelo")
+lbl_template_title = Label(master=template_frame, font="Verdana 14 bold", text="Arquivo de Modelo (.txt)")
+lbl_template_title.pack()
+
+lbl_template = Label(master=template_frame, wraplength=250, text=settings["template_file"])
+lbl_template.pack()
+
+btn_template = Button(master=template_frame, text="Selecionar")
 btn_template["command"] = partial(ask_for_template_file, settings, lbl_template)
-btn_template.grid(row=1, column=0)
+btn_template.pack()
 
-lbl_export_path = Label(root, text=settings["export_path"])
-lbl_export_path.grid(row=2, column=1)
+""" EXPORT FRAME """
+export_frame = Frame(main_frame, padx=10, pady=10)
+export_frame.grid(row=2, column=0)
 
-btn_export_path = Button(root, text="Caminho de Destino")
+lbl_export_title = Label(master=export_frame, font="Verdana 14 bold", text="Diretório de Destino")
+lbl_export_title.pack()
+
+lbl_export_path = Label(master=export_frame, wraplength=250, text=settings["export_path"])
+lbl_export_path.pack()
+
+btn_export_path = Button(master=export_frame, text="Selecionar")
 btn_export_path["command"] = partial(ask_for_export_path, settings, lbl_export_path)
-btn_export_path.grid(row=2, column=0)
+btn_export_path.pack()
 
-btn_run = Button(root, text="Gerar Arquivos")
+""" RUN APP """
+btn_run = Button(main_frame, text="Gerar Arquivos")
 btn_run["command"] = partial(run_application, settings)
-btn_run.grid(row=3, column=0, columnspan=2)
+btn_run.grid(row=3, column=0, padx=10, pady=10)
 
 root.mainloop()
