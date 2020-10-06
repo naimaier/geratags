@@ -20,24 +20,6 @@ def write_settings(settings):
         json.dump(settings, settings_file)
 
 
-def input_file_is_valid(input_file_name):
-    # Check if input file exists
-    if not path.exists(input_file_name):
-        messagebox.showwarning("O arquivo '" + input_file_name + "' não existe")
-        return False
-
-    return True
-
-
-def template_file_is_valid(template_file_name):
-    # Check if template file exists
-    if not path.exists(template_file_name):
-        messagebox.showwarning("O arquivo '" + template_file_name + "' não existe")
-        return False
-
-    return True
-
-
 def export_path_is_valid(export_path):
     # Check if template file exists
     if not path.exists(export_path):
@@ -51,15 +33,24 @@ def read_csv_file(input_file_name):
     input_data = []
 
     # Read csv file (csv extension)
-    with open(input_file_name, 'r') as csvfile:
-        reader = csv.reader(csvfile, delimiter=',')
-        for row in reader:
-            dictionary = {
-                "name": row[0],
-                "id": row[1]
-            }
-            input_data.append(dictionary)
-            
+    try:
+        with open(input_file_name, 'r') as csvfile:
+            reader = csv.reader(csvfile, delimiter=',')
+            for row in reader:
+                dictionary = {
+                    "name": row[0],
+                    "id": row[1]
+                }
+                input_data.append(dictionary)
+
+    except FileNotFoundError:
+        messagebox.showerror('Erro', 'O arquivo ' + input_file_name + ' não existe')
+        return None
+
+    except:
+        messagebox.showerror('Erro', 'Não foi possível abrir o arquivo de entrada: ' + input_file_name)
+        return None
+
     return input_data
 
 
@@ -67,8 +58,17 @@ def read_template_file(template_file_name):
     template_data = []
 
     # Read template file (txt extension)
-    with open(template_file_name) as template_file:
-        template_data = template_file.readlines()
+    try:
+        with open(template_file_name) as template_file:
+            template_data = template_file.readlines()
+
+    except FileNotFoundError:
+        messagebox.showerror('Erro', 'O arquivo ' + template_file_name + ' não existe')
+        return None
+
+    except:
+        messagebox.showerror('Erro', 'Não foi possível abrir o arquivo de modelo: ' + template_file_name)
+        return None
 
     return template_data
 
@@ -93,46 +93,42 @@ def generate_output_data(input_data, template_data):
     return output_data
 
 
-def write_output_file(output_data):
+def write_output_file(settings, output_data):
+    # Join the output file path and file name
+    output_data['file_name'] = path.join(settings['export_path'], output_data['file_name'])
+
     # Write file
     with open(output_data["file_name"] + ".mne", "w") as output_file:
         output_file.writelines(output_data["data"])
 
 
 def bt_input_click(settings, lb):
-    # TODO change initial dir to 'C:\'
-    settings["input_file"] = askopenfilename(initialdir='/', 
+    settings["input_file"] = askopenfilename(initialdir=settings['input_file'], 
                                              title='Selecione o Arquivo de Entrada', 
                                              filetypes=[('Arquivos CSV', '*.csv')])
-    lb["text"] = settings["input_file"]
-    write_settings(settings)
+    if settings['input_file']:
+        lb["text"] = settings["input_file"]
+        write_settings(settings)
 
 
 def bt_template_click(settings, lb):
-    # TODO change initial dir to 'C:\'
-    settings["template_file"] = askopenfilename(initialdir='/', 
+    settings["template_file"] = askopenfilename(initialdir=settings['template_file'], 
                                              title='Selecione o Arquivo de Modelo', 
                                              filetypes=[('Arquivos TXT', '*.txt')])
-    lb["text"] = settings["template_file"]
-    write_settings(settings)
+    if settings['template_file']:
+        lb["text"] = settings["template_file"]
+        write_settings(settings)
 
 
 def bt_export_path_click(settings, lb):
-    # TODO change initial dir to 'C:\'
-    settings["export_path"] = askdirectory(initialdir='/', 
+    settings["export_path"] = askdirectory(initialdir=settings['export_path'], 
                                            title='Selecione o Diretório de Destino')
-    lb["text"] = settings["export_path"]
-    write_settings(settings)
+    if settings['export_path']:
+        lb["text"] = settings["export_path"]
+        write_settings(settings)
 
 
 def bt_run_click(settings):
-    # Validate input file
-    if not input_file_is_valid(settings["input_file"]):
-        return
-
-    # Validate template file
-    if not template_file_is_valid(settings["template_file"]):
-        return
     
     # Validate export path
     if not export_path_is_valid(settings["export_path"]):
@@ -140,25 +136,35 @@ def bt_run_click(settings):
     
     # Read the input file
     input_data = read_csv_file(settings["input_file"])
+    if not input_data:
+        return
 
     # Read the template file
     template_data = read_template_file(settings["template_file"])
+    if not template_data:
+        return
 
     # Write output files
-    for data in input_data:
-        output_data = generate_output_data(data, template_data)
-        write_output_file(output_data)
-    
-    messagebox.showinfo("Arquivos gerados", "Arquivos gerados")
+    try:
+        for data in input_data:
+            output_data = generate_output_data(data, template_data)
+            write_output_file(settings, output_data)
+    except:
+        messagebox.showerror('Erro', 'Não foi possível gerar os arquivos')
+    else:
+        messagebox.showinfo("Arquivos gerados", "Arquivos gerados com sucesso")
 
 
 if path.exists("settings.json"):
     settings = load_settings()
 else:
+    # Gets the current path
+    current_directory = path.dirname(path.abspath(__file__))
+
     settings = {
-        'input_file': 'Escolher',
-        'template_file': 'Escolher',
-        'export_path': 'Escolher'
+        'input_file': current_directory,
+        'template_file': current_directory,
+        'export_path': current_directory
     }
 
 # Generate main window
