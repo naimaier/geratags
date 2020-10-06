@@ -102,7 +102,7 @@ def write_output_file(settings, output_data):
         output_file.writelines(output_data["data"])
 
 
-def bt_input_click(settings, lb):
+def ask_for_input_file(settings, lb):
     settings["input_file"] = askopenfilename(initialdir=settings['input_file'], 
                                              title='Selecione o Arquivo de Entrada', 
                                              filetypes=[('Arquivos CSV', '*.csv')])
@@ -111,7 +111,7 @@ def bt_input_click(settings, lb):
         write_settings(settings)
 
 
-def bt_template_click(settings, lb):
+def ask_for_template_file(settings, lb):
     settings["template_file"] = askopenfilename(initialdir=settings['template_file'], 
                                              title='Selecione o Arquivo de Modelo', 
                                              filetypes=[('Arquivos TXT', '*.txt')])
@@ -120,7 +120,7 @@ def bt_template_click(settings, lb):
         write_settings(settings)
 
 
-def bt_export_path_click(settings, lb):
+def ask_for_export_path(settings, lb):
     settings["export_path"] = askdirectory(initialdir=settings['export_path'], 
                                            title='Selecione o Diretório de Destino')
     if settings['export_path']:
@@ -128,7 +128,7 @@ def bt_export_path_click(settings, lb):
         write_settings(settings)
 
 
-def bt_run_click(settings):
+def run_application(settings):
     
     # Validate export path
     if not export_path_is_valid(settings["export_path"]):
@@ -172,29 +172,29 @@ root = Tk()
 
 root.title("Gerador de Tags")
 
-lb_input = Label(root, text=settings["input_file"])
-lb_input.grid(row=0, column=1)
+lbl_input = Label(root, text=settings["input_file"])
+lbl_input.grid(row=0, column=1)
 
-bt_input = Button(root, text="Arquivo de Entrada")
-bt_input["command"] = partial(bt_input_click, settings, lb_input)
-bt_input.grid(row=0, column=0)
+btn_input = Button(root, text="Arquivo de Entrada")
+btn_input["command"] = partial(ask_for_input_file, settings, lbl_input)
+btn_input.grid(row=0, column=0)
 
-lb_template = Label(root, text=settings["template_file"])
-lb_template.grid(row=1, column=1)
+lbl_template = Label(root, text=settings["template_file"])
+lbl_template.grid(row=1, column=1)
 
-bt_template = Button(root, text="Arquivo de Modelo")
-bt_template["command"] = partial(bt_template_click, settings, lb_template)
-bt_template.grid(row=1, column=0)
+btn_template = Button(root, text="Arquivo de Modelo")
+btn_template["command"] = partial(ask_for_template_file, settings, lbl_template)
+btn_template.grid(row=1, column=0)
 
-lb_export_path = Label(root, text=settings["export_path"])
-lb_export_path.grid(row=2, column=1)
+lbl_export_path = Label(root, text=settings["export_path"])
+lbl_export_path.grid(row=2, column=1)
 
-bt_export_path = Button(root, text="Caminho de Destino")
-bt_export_path["command"] = partial(bt_export_path_click, settings, lb_export_path)
-bt_export_path.grid(row=2, column=0)
+btn_export_path = Button(root, text="Caminho de Destino")
+btn_export_path["command"] = partial(ask_for_export_path, settings, lbl_export_path)
+btn_export_path.grid(row=2, column=0)
 
-bt_run = Button(root, text="Gerar Arquivos")
-bt_run["command"] = partial(bt_run_click, settings)
-bt_run.grid(row=3, column=0, columnspan=2)
+btn_run = Button(root, text="Gerar Arquivos")
+btn_run["command"] = partial(run_application, settings)
+btn_run.grid(row=3, column=0, columnspan=2)
 
 root.mainloop()
