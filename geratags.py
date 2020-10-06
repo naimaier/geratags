@@ -23,7 +23,7 @@ def write_settings(settings):
 def input_file_is_valid(input_file_name):
     # Check if input file exists
     if not path.exists(input_file_name):
-        print("O arquivo '" + input_file_name + "' não existe")
+        messagebox.showwarning("O arquivo '" + input_file_name + "' não existe")
         return False
 
     return True
@@ -32,7 +32,7 @@ def input_file_is_valid(input_file_name):
 def template_file_is_valid(template_file_name):
     # Check if template file exists
     if not path.exists(template_file_name):
-        print("O arquivo '" + template_file_name + "' não existe")
+        messagebox.showwarning("O arquivo '" + template_file_name + "' não existe")
         return False
 
     return True
@@ -41,7 +41,7 @@ def template_file_is_valid(template_file_name):
 def export_path_is_valid(export_path):
     # Check if template file exists
     if not path.exists(export_path):
-        print("O arquivo '" + export_path + "' não existe")
+        messagebox.showwarning("O caminho '" + export_path + "' não existe")
         return False
 
     return True
