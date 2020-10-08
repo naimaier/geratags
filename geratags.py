@@ -20,36 +20,18 @@ def write_settings(settings):
         json.dump(settings, settings_file)
 
 
-def export_path_is_valid(export_path):
-    # Check if template file exists
-    if not path.exists(export_path):
-        messagebox.showwarning("O diretório '" + export_path + "' não existe")
-        return False
-
-    return True
-
-
 def read_csv_file(input_file_name):
     input_data = []
 
     # Read csv file (csv extension) into a dict list
-    try:
-        with open(input_file_name, 'r') as csvfile:
-            reader = csv.reader(csvfile, delimiter=',')
-            for row in reader:
-                dictionary = {
-                    "name": row[0],
-                    "id": row[1]
-                }
-                input_data.append(dictionary)
-
-    except FileNotFoundError:
-        messagebox.showerror('Erro', 'O arquivo ' + input_file_name + ' não existe')
-        return None
-
-    except:
-        messagebox.showerror('Erro', 'Não foi possível abrir o arquivo de entrada: ' + input_file_name)
-        return None
+    with open(input_file_name, 'r') as csvfile:
+        reader = csv.reader(csvfile, delimiter=',')
+        for row in reader:
+            dictionary = {
+                "name": row[0],
+                "id": row[1]
+            }
+            input_data.append(dictionary)
 
     return input_data
 
@@ -58,17 +40,8 @@ def read_template_file(template_file_name):
     template_data = []
 
     # Read template file (txt extension)
-    try:
-        with open(template_file_name) as template_file:
-            template_data = template_file.readlines()
-
-    except FileNotFoundError:
-        messagebox.showerror('Erro', 'O arquivo ' + template_file_name + ' não existe')
-        return None
-
-    except:
-        messagebox.showerror('Erro', 'Não foi possível abrir o arquivo de modelo: ' + template_file_name)
-        return None
+    with open(template_file_name) as template_file:
+        template_data = template_file.readlines()
 
     return template_data
 
@@ -130,18 +103,25 @@ def ask_for_export_path(settings, lb):
 
 def run_application(settings):
     
-    # Validate export path
-    if not export_path_is_valid(settings["export_path"]):
-        return
-    
     # Read the input file
-    input_data = read_csv_file(settings["input_file"])
-    if not input_data:
+    try:
+        input_data = read_csv_file(settings["input_file"])
+    except FileNotFoundError:
+        messagebox.showerror('Erro', 'Arquivo inexistente: ' + settings["input_file"])
+        return
+    except:
+        messagebox.showerror('Erro', 'Não foi possível abrir o arquivo de entrada: ' + settings["input_file"])
         return
 
     # Read the template file
-    template_data = read_template_file(settings["template_file"])
-    if not template_data:
+    try:
+        template_data = read_template_file(settings["template_file"])
+    except FileNotFoundError:
+        messagebox.showerror('Erro', 'Arquivo inexistente: ' + settings["template_file"])
+        return
+
+    except:
+        messagebox.showerror('Erro', 'Não foi possível abrir o arquivo de modelo: ' + settings["template_file"])
         return
 
     # Write output files
@@ -149,15 +129,20 @@ def run_application(settings):
         for data in input_data:
             output_data = generate_output_data(data, template_data)
             write_output_file(settings, output_data)
+    except FileNotFoundError:
+        messagebox.showerror('Erro', 'Diretório de destino inválido')
     except:
         messagebox.showerror('Erro', 'Não foi possível gerar os arquivos')
     else:
-        messagebox.showinfo("Arquivos gerados", "Arquivos gerados com sucesso")
+        messagebox.showinfo("Informação", "Arquivos gerados com sucesso")
 
 
-if path.exists("settings.json"):
+# Try to load previously saved settings.
+try:
     settings = load_settings()
-else:
+    
+#  If unable or if not exists, load default settings
+except:
     # Gets the current path
     current_directory = path.dirname(path.abspath(__file__))
 
@@ -167,6 +152,7 @@ else:
         'export_path': current_directory
     }
 
+""" GUI """
 # Generate main window
 root = Tk()
 root.title("Gerador de Tags")
@@ -228,7 +214,7 @@ btn_run.grid(row=4, column=0, padx=10, pady=10)
 # Necessary for winfo_width and winfo_heigh to work properly
 root.update()
 
-# Centering the window on the screen
+""" Centering the window on the screen """
 # https://yagisanatode.com/2018/02/24/how-to-center-the-main-window-on-the-screen-in-tkinter-with-python-3/
 # Changed winfo_reqwidth and winfo_reqheight to winfo_width and winfo_height
 
