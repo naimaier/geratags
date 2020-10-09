@@ -7,209 +7,237 @@ from functools import partial
 import json
 
 
-def load_settings():
-    settings = {}
-    with open("settings.json", "r") as settings_file:
-        settings = json.load(settings_file)
+class GeraTags():
 
-    return settings
+    def __init__(self, root):
+        # Try to load previously saved settings.
+        try:
+            self.settings = self.load_settings()    
+        #  If unable or if not exists, load default settings
+        except:
+            # Gets the current path
+            current_directory = path.dirname(path.abspath(__file__))
 
-
-def write_settings(settings):
-    with open("settings.json", "w") as settings_file:
-        json.dump(settings, settings_file)
-
-
-def read_csv_file(input_file_name):
-    input_data = []
-
-    # Read csv file (csv extension) into a dict list
-    with open(input_file_name, 'r') as csvfile:
-        reader = csv.reader(csvfile, delimiter=',')
-        for row in reader:
-            dictionary = {
-                "name": row[0],
-                "id": row[1]
+            self.settings = {
+                'input_file': current_directory,
+                'template_file': current_directory,
+                'export_path': current_directory
             }
-            input_data.append(dictionary)
 
-    return input_data
+        """ GUI """
+        self.root = root
+        self.root.title("Gerador de Tags")
+        self.root.resizable(width=False, height=False)
 
+        self.main_frame = Frame(self.root, padx=10, pady=10)
+        self.main_frame.pack(expand=True)
 
-def read_template_file(template_file_name):
-    template_data = []
+        self.lbl_title = Label(master=self.main_frame, 
+                               font="Verdana 20 bold", 
+                               padx=10, pady=10, 
+                               text="Gerador de Tags\nTridium")
+        self.lbl_title.grid(row=0, column=0)
 
-    # Read template file (txt extension)
-    with open(template_file_name) as template_file:
-        template_data = template_file.readlines()
+        """ INPUT FRAME """
+        self.input_frame = Frame(self.main_frame, padx=10, pady=10)
+        self.input_frame.grid(row=1, column=0)
 
-    return template_data
+        self.lbl_input_title = Label(master=self.input_frame, 
+                                     font="Verdana 14 bold", 
+                                     text="Arquivo de Entrada (.csv)")
+        self.lbl_input_title.pack()
 
+        self.lbl_input = Label(master=self.input_frame, wraplength=250)
+        self.lbl_input.pack()
 
-def generate_output_data(input_data, template_data):
-    # Create a variable stripping the hifens of the name attribute
-    symbol = input_data["name"].replace("-", '')
+        self.btn_input = Button(master=self.input_frame, text="Selecionar")
+        self.btn_input["command"] = partial(self.ask_for_input_file)
+        self.btn_input.pack()
 
-    output_data = {
-        "file_name": symbol.lower(),
-        "data": []
-    }
+        """ TEMPLATE FRAME """
+        self.template_frame = Frame(self.main_frame, padx=10, pady=10)
+        self.template_frame.grid(row=2, column=0)
 
-    # Include first two lines common to every model
-    output_data["data"].append("#ID:" + input_data["id"] + "\n")
-    output_data["data"].append('#Name:"' + input_data["name"] + '"\n')
+        self.lbl_template_title = Label(master=self.template_frame, 
+                                        font="Verdana 14 bold", 
+                                        text="Arquivo de Modelo (.txt)")
+        self.lbl_template_title.pack()
 
-    # Generate the output data by replacing the wildcard with the symbol
-    for data in template_data:
-        output_data["data"].append(data.replace("$", symbol))
+        self.lbl_template = Label(master=self.template_frame, wraplength=250)
+        self.lbl_template.pack()
 
-    return output_data
+        self.btn_template = Button(master=self.template_frame, text="Selecionar")
+        self.btn_template["command"] = partial(self.ask_for_template_file)
+        self.btn_template.pack()
 
+        """ EXPORT FRAME """
+        self.export_frame = Frame(self.main_frame, padx=10, pady=10)
+        self.export_frame.grid(row=3, column=0)
 
-def write_output_file(settings, output_data):
-    # Join the output file path and file name
-    output_data['file_name'] = path.join(settings['export_path'], output_data['file_name'])
+        self.lbl_export_title = Label(master=self.export_frame, 
+                                      font="Verdana 14 bold", 
+                                      text="Diretório de Destino")
+        self.lbl_export_title.pack()
 
-    # Write file
-    with open(output_data["file_name"] + ".mne", "w") as output_file:
-        output_file.writelines(output_data["data"])
+        self.lbl_export_path = Label(master=self.export_frame, wraplength=250)
+        self.lbl_export_path.pack()
 
+        self.btn_export_path = Button(master=self.export_frame, text="Selecionar")
+        self.btn_export_path["command"] = partial(self.ask_for_export_path)
+        self.btn_export_path.pack()
 
-def ask_for_input_file(settings, lb):
-    settings["input_file"] = askopenfilename(initialdir=settings['input_file'], 
-                                             title='Selecione o Arquivo de Entrada', 
-                                             filetypes=[('Arquivos CSV', '*.csv')])
-    if settings['input_file']:
-        lb["text"] = settings["input_file"]
-        write_settings(settings)
+        """ RUN APP """
+        self.btn_run = Button(self.main_frame, text="Gerar Arquivos")
+        self.btn_run["command"] = partial(self.run_application)
+        self.btn_run.grid(row=4, column=0, padx=10, pady=10)
 
-
-def ask_for_template_file(settings, lb):
-    settings["template_file"] = askopenfilename(initialdir=settings['template_file'], 
-                                             title='Selecione o Arquivo de Modelo', 
-                                             filetypes=[('Arquivos TXT', '*.txt')])
-    if settings['template_file']:
-        lb["text"] = settings["template_file"]
-        write_settings(settings)
-
-
-def ask_for_export_path(settings, lb):
-    settings["export_path"] = askdirectory(initialdir=settings['export_path'], 
-                                           title='Selecione o Diretório de Destino')
-    if settings['export_path']:
-        lb["text"] = settings["export_path"]
-        write_settings(settings)
-
-
-def run_application(settings):
-    
-    # Read the input file
-    try:
-        input_data = read_csv_file(settings["input_file"])
-    except FileNotFoundError:
-        messagebox.showerror('Erro', 'Arquivo inexistente: ' + settings["input_file"])
-        return
-    except:
-        messagebox.showerror('Erro', 'Não foi possível abrir o arquivo de entrada: ' + settings["input_file"])
-        return
-
-    # Read the template file
-    try:
-        template_data = read_template_file(settings["template_file"])
-    except FileNotFoundError:
-        messagebox.showerror('Erro', 'Arquivo inexistente: ' + settings["template_file"])
-        return
-
-    except:
-        messagebox.showerror('Erro', 'Não foi possível abrir o arquivo de modelo: ' + settings["template_file"])
-        return
-
-    # Write output files
-    try:
-        for data in input_data:
-            output_data = generate_output_data(data, template_data)
-            write_output_file(settings, output_data)
-    except FileNotFoundError:
-        messagebox.showerror('Erro', 'Diretório de destino inválido')
-    except:
-        messagebox.showerror('Erro', 'Não foi possível gerar os arquivos')
-    else:
-        messagebox.showinfo("Informação", "Arquivos gerados com sucesso")
+        self.update_labels()
 
 
-# Try to load previously saved settings.
-try:
-    settings = load_settings()
-    
-#  If unable or if not exists, load default settings
-except:
-    # Gets the current path
-    current_directory = path.dirname(path.abspath(__file__))
+    def load_settings(self):
+        settings = {}
+        with open("settings.json", "r") as settings_file:
+            settings = json.load(settings_file)
 
-    settings = {
-        'input_file': current_directory,
-        'template_file': current_directory,
-        'export_path': current_directory
-    }
+        return settings
 
-""" GUI """
+
+    def write_settings_file(self):
+        with open("settings.json", "w") as settings_file:
+            json.dump(self.settings, settings_file)
+
+
+    def read_csv_file(self):
+        input_data = []
+
+        # Read csv file (csv extension) into a dict list
+        with open(self.settings['input_file'], 'r') as csvfile:
+            reader = csv.reader(csvfile, delimiter=',')
+            for row in reader:
+                entry = {
+                    "name": row[0],
+                    "id": row[1]
+                }
+                input_data.append(entry)
+
+        return input_data
+
+
+    def read_template_file(self):
+        template_data = []
+
+        # Read template file (txt extension)
+        with open(self.settings['template_file']) as template_file:
+            template_data = template_file.readlines()
+
+        return template_data
+
+
+    def generate_output_data(self, input_data, template_data):
+        # Create a variable stripping the hifens of the name attribute
+        symbol = input_data["name"].replace("-", '')
+
+        output_data = {
+            "file_name": symbol.lower(),
+            "data": []
+        }
+
+        # Include first two lines common to every model
+        output_data["data"].append("#ID:" + input_data["id"] + "\n")
+        output_data["data"].append('#Name:"' + input_data["name"] + '"\n')
+
+        # Generate the output data by replacing the wildcard with the symbol
+        for data in template_data:
+            output_data["data"].append(data.replace("$", symbol))
+
+        return output_data
+
+
+    def write_output_file(self, output_data):
+        # Join the output file path and file name
+        output_data['file_name'] = path.join(self.settings['export_path'], 
+                                             output_data['file_name'])
+
+        # Write file
+        with open(output_data["file_name"] + ".mne", "w") as output_file:
+            output_file.writelines(output_data["data"])
+
+
+    def ask_for_input_file(self):
+        input_file = askopenfilename(initialdir=self.settings['input_file'], 
+                                     title='Selecione o Arquivo de Entrada', 
+                                     filetypes=[('Arquivos CSV', '*.csv')])
+        if input_file:
+            self.settings['input_file'] = input_file
+            self.update_labels()
+            self.write_settings_file()
+
+
+    def ask_for_template_file(self):
+        template_file = askopenfilename(initialdir=self.settings['template_file'], 
+                                        title='Selecione o Arquivo de Modelo', 
+                                        filetypes=[('Arquivos TXT', '*.txt')])
+        if template_file:
+            self.settings['template_file'] = template_file
+            self.update_labels()
+            self.write_settings_file()
+
+
+    def ask_for_export_path(self):
+        export_path = askdirectory(initialdir=self.settings['export_path'], 
+                                   title='Selecione o Diretório de Destino')
+        if export_path:
+            self.settings['export_path'] = export_path
+            self.update_labels()
+            self.write_settings_file()
+
+
+    def update_labels(self):
+        self.lbl_input['text'] = self.settings['input_file']
+        self.lbl_template['text'] = self.settings['template_file']
+        self.lbl_export_path['text'] = self.settings['export_path']
+
+
+    def run_application(self):
+        # Read the input file
+        try:
+            input_data = self.read_csv_file()
+        except FileNotFoundError:
+            messagebox.showerror('Erro', 'Arquivo inexistente: ' + self.settings["input_file"])
+            return
+        except:
+            messagebox.showerror('Erro', 'Arquivo de entrada inválido: ' + self.settings["input_file"])
+            return
+
+        # Read the template file
+        try:
+            template_data = self.read_template_file()
+        except FileNotFoundError:
+            messagebox.showerror('Erro', 'Arquivo inexistente: ' + self.settings["template_file"])
+            return
+        except:
+            messagebox.showerror('Erro', 'Arquivo de modelo inválido: ' + self.settings["template_file"])
+            return
+
+        # Write output files
+        try:
+            for data in input_data:
+                output_data = self.generate_output_data(data, template_data)
+                self.write_output_file(output_data)
+        except FileNotFoundError:
+            messagebox.showerror('Erro', 'Diretório de destino inválido')
+            return
+        except:
+            messagebox.showerror('Erro', 'Não foi possível gerar os arquivos')
+            return
+        else:
+            messagebox.showinfo("Informação", "Arquivos gerados com sucesso")
+            return
+
+
 # Generate main window
 root = Tk()
-root.title("Gerador de Tags")
-root.resizable(width=False, height=False)
-
-main_frame = Frame(root, padx=10, pady=10)
-main_frame.pack(expand=True)
-
-lbl_title = Label(master=main_frame, font="Verdana 20 bold", padx=10, pady=10, text="Gerador de Tags\nTridium")
-lbl_title.grid(row=0, column=0)
-
-""" INPUT FRAME """
-input_frame = Frame(main_frame, padx=10, pady=10)
-input_frame.grid(row=1, column=0)
-
-lbl_input_title = Label(master=input_frame, font="Verdana 14 bold", text="Arquivo de Entrada (.csv)")
-lbl_input_title.pack()
-
-lbl_input = Label(master=input_frame, wraplength=250, text=settings["input_file"])
-lbl_input.pack()
-
-btn_input = Button(master=input_frame, text="Selecionar")
-btn_input["command"] = partial(ask_for_input_file, settings, lbl_input)
-btn_input.pack()
-
-""" TEMPLATE FRAME """
-template_frame = Frame(main_frame, padx=10, pady=10)
-template_frame.grid(row=2, column=0)
-
-lbl_template_title = Label(master=template_frame, font="Verdana 14 bold", text="Arquivo de Modelo (.txt)")
-lbl_template_title.pack()
-
-lbl_template = Label(master=template_frame, wraplength=250, text=settings["template_file"])
-lbl_template.pack()
-
-btn_template = Button(master=template_frame, text="Selecionar")
-btn_template["command"] = partial(ask_for_template_file, settings, lbl_template)
-btn_template.pack()
-
-""" EXPORT FRAME """
-export_frame = Frame(main_frame, padx=10, pady=10)
-export_frame.grid(row=3, column=0)
-
-lbl_export_title = Label(master=export_frame, font="Verdana 14 bold", text="Diretório de Destino")
-lbl_export_title.pack()
-
-lbl_export_path = Label(master=export_frame, wraplength=250, text=settings["export_path"])
-lbl_export_path.pack()
-
-btn_export_path = Button(master=export_frame, text="Selecionar")
-btn_export_path["command"] = partial(ask_for_export_path, settings, lbl_export_path)
-btn_export_path.pack()
-
-""" RUN APP """
-btn_run = Button(main_frame, text="Gerar Arquivos")
-btn_run["command"] = partial(run_application, settings)
-btn_run.grid(row=4, column=0, padx=10, pady=10)
+gui = GeraTags(root)
 
 # Necessary for winfo_width and winfo_heigh to work properly
 root.update()
