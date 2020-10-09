@@ -112,7 +112,7 @@ class GeraTags():
 
         # Read csv file (csv extension) into a dict list
         with open(self.settings['input_file'], 'r') as csvfile:
-            reader = csv.reader(csvfile, delimiter=',')
+            reader = csv.reader(csvfile, delimiter=';')
             for row in reader:
                 entry = {
                     "name": row[0],
