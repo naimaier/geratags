@@ -2,6 +2,8 @@
 Tool that generate tags for tridium's supervisory system.
 
 # building
+It uses python 3 and tcl-tk.
+
 Build exe with pyinstaller:
 ```pyinstaller --onefile --noconsole --icon=icon.ico geratags.py```
 
