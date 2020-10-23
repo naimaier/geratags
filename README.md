@@ -18,7 +18,7 @@ The input file must be a *.CSV* file with 2 columns, the first being the compone
 ```
 
 ## the template file
-The template file must be a *.txt* file. 
+The template file must be a *.TXT* file. 
 Use the wildcard **$** where you want the software to include the component's name without dashes.
 
 ## the output files
